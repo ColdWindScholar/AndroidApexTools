@@ -860,7 +860,7 @@ def CreateApex(args, work_dir):
 
 
 def _get_java_toolchain(work_dir):
-    java_toolchain = "java"
+
     if os.path.isfile("/usr/lib/jvm/java-11-openjdk-amd64/bin/java"):
         java_toolchain = "/usr/lib/jvm/java-11-openjdk-amd64/bin/java"
     elif os.path.isfile("/usr/lib/jvm/java-17-openjdk-amd64/bin/java"):
@@ -873,7 +873,8 @@ def _get_java_toolchain(work_dir):
         java_toolchain = os.path.join(os.environ["JAVA_HOME"], "bin", "java")
     else:
         java_toolchain = os.path.join(current_dir, "jdk/java")
-
+    if not os.path.exists(java_toolchain) and shutil.which('java'):
+        java_toolchain = shutil.which('java')
     java_dep_lib = os.path.join(work_dir, "lib64")
     if "ANDROID_HOST_OUT" in os.environ:
         java_dep_lib += ":" + os.path.join(os.environ["ANDROID_HOST_OUT"], "lib64")
