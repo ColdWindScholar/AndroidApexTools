@@ -24,15 +24,15 @@ To extract content of an APEX to the given directory:
 from __future__ import print_function
 
 import argparse
-import apex_manifest
-import apex_manifest
 import enum
 import os
 import shutil
-import sys
 import subprocess
+import sys
 import tempfile
 import zipfile
+
+import apex_manifest
 
 BLOCK_SIZE = 4096
 current_dir = "."
@@ -233,7 +233,7 @@ class Apex(object):
                         length = min(int(tokens[-1]) * BLOCK_SIZE, left_length)
                         left_length -= length
                         extents.append((offset, length))
-                    if (left_length != 0):  # dump_extents sometimes fails to display "hole" blocks
+                    if left_length != 0:  # dump_extents sometimes fails to display "hole" blocks
                         raise ValueError
                 except:
                     extents = []  # [] means that we failed to retrieve the file location successfully
@@ -262,12 +262,12 @@ class Apex(object):
 
     def extract(self, dest):
         if self._payload_fs_type == 'erofs':
-            subprocess.run([self._fsckerofs, '--extract=%s' % (dest), '--overwrite', self._payload],
+            subprocess.run([self._fsckerofs, '--extract=%s' % dest, '--overwrite', self._payload],
                            stdout=subprocess.DEVNULL, check=True)
         elif self._payload_fs_type == 'ext4':
             # Suppress stderr without failure
             try:
-                subprocess.run(["debugfs", '-R', 'rdump ./ %s' % (dest), self._payload],
+                subprocess.run(["debugfs", '-R', 'rdump ./ %s' % dest, self._payload],
                                capture_output=True, check=True)
             except subprocess.CalledProcessError as e:
                 sys.exit(e.stderr)

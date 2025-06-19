@@ -223,7 +223,7 @@ def RunCommand(cmd, verbose=False, env=None, expected_return_values={0}):
 
     assert p.returncode in expected_return_values, 'Failed to execute: ' + ' '.join(cmd)
 
-    return (output, p.returncode)
+    return output, p.returncode
 
 
 def GetDirSize(dir_name):
@@ -333,8 +333,8 @@ def ValidateArgs(args):
         return False
 
     if args.unsigned_payload_only:
-        args.payload_only = True;
-        args.unsigned_payload = True;
+        args.payload_only = True
+        args.unsigned_payload = True
 
     if not args.key and not args.unsigned_payload:
         print('Missing --key {keyfile} argument!')
@@ -389,7 +389,7 @@ def ValidateArgs(args):
 
 def GenerateBuildInfo(args):
     build_info = apex_build_info_pb2.ApexBuildInfo()
-    if (args.include_cmd_line_in_build_info):
+    if args.include_cmd_line_in_build_info:
         build_info.apexer_command_line = str(sys.argv)
 
     with open(args.file_contexts, 'rb') as f:
@@ -532,8 +532,7 @@ def CreateImageExt4(args, work_dir, manifests_dir, img_file):
         # RunCommand(cmd, args.verbose)
 
         # Add files to the image file
-        cmd = ['e2fsdroid']
-        cmd.append('-e')  # input is not android_sparse_file
+        cmd = ['e2fsdroid', '-e']
         cmd.extend(['-f', args.input_dir])
         cmd.extend(['-T', '0'])  # time is set to epoch
         cmd.extend(['-S', args.file_contexts])
@@ -543,8 +542,7 @@ def CreateImageExt4(args, work_dir, manifests_dir, img_file):
         cmd.append(img_file)
         RunCommand(cmd, args.verbose, {'E2FSPROGS_FAKE_TIME': '1'})
 
-        cmd = ['e2fsdroid']
-        cmd.append('-e')  # input is not android_sparse_file
+        cmd = ['e2fsdroid', '-e']
         cmd.extend(['-f', manifests_dir])
         cmd.extend(['-T', '0'])  # time is set to epoch
         cmd.extend(['-S', args.file_contexts])
@@ -555,9 +553,7 @@ def CreateImageExt4(args, work_dir, manifests_dir, img_file):
         RunCommand(cmd, args.verbose, {'E2FSPROGS_FAKE_TIME': '1'})
 
         # Resize the image file to save space
-        cmd = ['resize2fs']
-        cmd.append('-M')  # shrink as small as possible
-        cmd.append(img_file)
+        cmd = ['resize2fs', '-M', img_file]
         RunCommand(cmd, args.verbose, {'E2FSPROGS_FAKE_TIME': '1'})
 
 
@@ -662,9 +658,7 @@ def SignImage(args, manifest_apex, img_file):
     else:
         key_name = os.path.basename(os.path.splitext(args.key)[0])
 
-    cmd = ['avbtool']
-    cmd.append('add_hashtree_footer')
-    cmd.append('--do_not_generate_fec')
+    cmd = ['avbtool', 'add_hashtree_footer', '--do_not_generate_fec']
     cmd.extend(['--algorithm', 'SHA256_RSA4096'])
     cmd.extend(['--hash_algorithm', 'sha256'])
     cmd.extend(['--key', args.key])
@@ -691,8 +685,7 @@ def SignImage(args, manifest_apex, img_file):
 
     # Resize to the minimum size
     # TODO(b/113320014) eliminate this step
-    cmd = ['avbtool']
-    cmd.append('resize_image')
+    cmd = ['avbtool', 'resize_image']
     cmd.extend(['--image', img_file])
     cmd.extend(['--partition_size', str(partition_size)])
     RunCommand(cmd, args.verbose)
@@ -820,8 +813,7 @@ def CreateApex(args, work_dir):
             f.write(build_info.SerializeToString())
 
     apk_file = os.path.join(work_dir, 'apex.apk')
-    cmd = ['aapt2']
-    cmd.append('link')
+    cmd = ['aapt2', 'link']
     cmd.extend(['--manifest', android_manifest_file])
     if args.override_apk_package_name:
         cmd.extend(['--rename-manifest-package', args.override_apk_package_name])
